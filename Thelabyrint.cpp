@@ -1,3 +1,13 @@
+// the code failed one test in the game is the 5th test because of the countdown alarm 
+// i did not ask ai for the direct solutions sometimes i was using it for the theoretical questions
+// about lambda function, structures or syntax, i didn't input the direct code in there, but 
+// i asked about search algorithms and examples of A* search, greedy and bfs 
+// decided to use bfs because it is more understandable for me then A* 
+// I didn't code non stop during working day, but spend about 80% - 90 % of the working day on 
+// finding solution and refreshing my memory, as well as learning 
+// so about 3 working days i spent on this problem, i honsetly do not like to code outside my classes 
+// or work so it will be around 15 - 20 hours i spend on learning, revising and finding correct algorithm 
+// maybe more since i was also thinking about way of solving in my free time but not coding directly 
 #include <iostream>
 #include <vector>
 #include <queue>
@@ -22,15 +32,17 @@ int main() {
     int dy[4] = {0, 0, -1, 1};
     string dirNames[4] = {"UP", "DOWN", "LEFT", "RIGHT"};
     bool foundC = false;
-    int tx = -1; 
-    int ty = -1;
+    int tx = -1; // intialize coordinates of T 
+    int ty = -1; // did that to make sure that T exists 
 
-    //lambda helper exploration function 
-    //finds the shortest path to the C if it in the vision, 
+    // lambda helper exploration function 
+    // finds the shortest path to the C if it in the vision,
+    // outputs path only if isTarget true, so it is flexible for 
+    // different targets not only C
     auto bfsShortestPath = [&](int startX, int startY, vector<vector<bool>> &blocked, 
                                function<bool(int,int)> isTarget) -> vector<Node> {
         vector<vector<bool>> visited(r, vector<bool>(c, false));// to track which nodes were visited 
-        vector<vector<Node>> parent(r, vector<Node>(c, {-1, -1}));// for later path reconstruction
+        vector<vector<Node>> parent(r, vector<Node>(c, {-1, -1}));// for constructing the path to the target 
         
         //bfs algorithm 
         queue<Node> q;
@@ -64,7 +76,7 @@ int main() {
 
         
 
-        if (!found) return {}; // no path found
+        if (!found) return {}; // no path found returns an empty vector without any variables in it 
 
         // reconstruct path from target to start
         vector<Node> path;
@@ -81,6 +93,7 @@ int main() {
         int kr, kc;
         cin >> kr >> kc; cin.ignore();
 
+        // read the input map and update only known cells 
         for (int i = 0; i < r; i++) {
             string row; cin >> row; cin.ignore();
             for (int j = 0; j < c; j++) {
@@ -93,19 +106,9 @@ int main() {
             }
         }
 
-        // update known map by visibility range 
-        // write only the ones that got uncovered in the move 
-        for (int i = -2; i <= 2; i++) {
-            for (int j = -2; j <= 2; j++) {
-                int ni = kr + i, nj = kc + j;
-                if (ni >= 0 && ni < r && nj >= 0 && nj < c) {
-                    knownMap[ni][nj] = knownMap[ni][nj]; // already updated above from input, making sure
-                }
-            }
-        }
 
-        // i use the separated bool data, since i do not want to get into the wall for sure 
-        // to make sure that bfs explores only the cells that it can go to
+        // used separated bool data, to make sure not to get into the wall 
+        // to assure that bfs explores only the cells that it can go to
         vector<vector<bool>> blocked(r, vector<bool>(c, false));
         for (int i = 0; i < r; i++){
             for (int j = 0; j < c; j++){
@@ -114,12 +117,12 @@ int main() {
                 }
             }
         }
-        // flag if c was visited, then go back to T 
+        // flag if c was visited, then go to the logic going back to T 
         if (knownMap[kr][kc] == 'C'){
             foundC = true;
         }
 
-        bool moved = false; // track if we already output a move
+        bool moved = false; // track if the move for coming back to T had been output already 
 
         if (!foundC){
             // trying to find the shortest path to the control room 
@@ -131,14 +134,14 @@ int main() {
             if (!pathToC.empty()) {
                 // move 1 step towards control room
                 Node nextMove = pathToC[0];
-                // determine direction
+                // determine direction and output move commands 
                 for (int i = 0; i < 4; i++) {
                     if (kr + dx[i] == nextMove.x && kc + dy[i] == nextMove.y) {
                         cout << dirNames[i] << endl;
                         break;
                     }
                 }
-                
+                //output the move and start the new iteration
                 continue;
             }
 
@@ -172,6 +175,7 @@ int main() {
                 continue;
             }
         }else{
+                //making sure that t coordinates exists and are valid 
                 if (tx != -1 && ty != -1) {
                 vector<Node> pathToT = bfsShortestPath(kr, kc, blocked,
                     [&](int x, int y) { return x == tx && y == ty; });
